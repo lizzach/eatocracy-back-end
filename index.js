@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const pool = require('./db');
-require('dotenv').config()
+require('dotenv').config();
 
 // middleware
 app.use(cors())
@@ -16,7 +16,7 @@ app.post("/events", async (req, res) => {
         const { title, creator, event_date, voting_deadline } = req.body;
         const newEvent = await pool.query("INSERT INTO events (title, creator, event_date, voting_deadline) VALUES($1, $2, $3, $4) RETURNING *", [title, creator, event_date, voting_deadline]);
 
-        res.json(newEvent.rows[0]);
+        res.status(201).json(newEvent.rows[0]);
     } catch (err) {
         console.log(err.message);
     }
@@ -27,7 +27,7 @@ app.get("/events", async (req, res) => {
     try {
         const allEvents = await pool.query("SELECT * FROM events");
 
-        res.json(allEvents.rows);
+        res.status(200).json(allEvents.rows);
     } catch (err) {
         console.error(err.message);
     }
@@ -37,33 +37,34 @@ app.get("/events", async (req, res) => {
 app.get("/events/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const event = await pool.query("SELECT * FROM events WHERE id = $1", [ id ])
+        const event = await pool.query("SELECT * FROM events WHERE id = $1", [id])
 
-        res.json(event.rows)
+        res.status(200).json(event.rows)
     } catch (err) {
         console.log(err.message);
     }
 })
 
 // assign a submission to an event
-app.post("/events/submissions", async (req, res) => {
+app.post("/events/:event_id/submissions", async (req, res) => {
     try {
-        const { submission_name, votes_count, event_id } = req.body;
-        const newSubmission = await pool.query("INSERT INTO submissions (submission_name, votes_count, event_id) VALUES($1, $2, $3) RETURNING *", [ submission_name, votes_count, event_id ]);
+        const { event_id } = req.params;
+        const { submission_name, votes_count } = req.body;
+        const newSubmission = await pool.query("INSERT INTO submissions (submission_name, votes_count, event_id) VALUES($1, $2, $3) RETURNING *", [submission_name, votes_count, event_id]);
 
-        res.json(newSubmission.rows[0]);
+        res.status(201).json(newSubmission.rows[0]);
     } catch (err) {
         console.log(err.message);
     }
 })
 
-// get all submissions
+// get all submissions for an event
 app.get("/events/:event_id/submissions", async (req, res) => {
     try {
-        const { event_id } = req.params
-        const allSubmissions = await pool.query("SELECT * FROM submissions WHERE event_id = $1", [ event_id ]);
+        const { event_id } = req.params;
+        const allSubmissions = await pool.query("SELECT * FROM submissions WHERE event_id = $1", [event_id]);
 
-        res.json(allSubmissions.rows);
+        res.status(200).json(allSubmissions.rows);
     } catch (err) {
         console.error(err.message);
     }
@@ -73,9 +74,9 @@ app.get("/events/:event_id/submissions", async (req, res) => {
 app.get("/events/submissions/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const submissions = await pool.query("SELECT * FROM submissions WHERE id = $1", [ id ]);
+        const submissions = await pool.query("SELECT * FROM submissions WHERE id = $1", [id]);
 
-        res.json(submissions.rows);
+        res.status(200).json(submissions.rows);
     } catch (err) {
         console.log(err.message);
     }
@@ -85,9 +86,9 @@ app.get("/events/submissions/:id", async (req, res) => {
 app.delete("/events/submissions/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const deleteSubmissions = await pool.query("DELETE FROM submissions WHERE id = $1 RETURNING *", [ id ]);
+        const deleteSubmissions = await pool.query("DELETE FROM submissions WHERE id = $1 RETURNING *", [id]);
 
-        res.json(deleteSubmissions.rows);
+        res.status(200).json(deleteSubmissions.rows);
     } catch (err) {
         console.log(err.message);
     }
