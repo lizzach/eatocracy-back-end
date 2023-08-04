@@ -12,6 +12,7 @@ CREATE TABLE submissions(
     id SERIAL PRIMARY KEY,
     submission_name VARCHAR(255) NOT NULL,
     votes_count INTEGER,
-    event_id INTEGER REFERENCES events(id)
+    event_id INTEGER REFERENCES events(id),
+    description VARCHAR(255)
 );
 

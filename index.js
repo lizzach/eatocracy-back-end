@@ -13,8 +13,11 @@ app.use(express.json())
 // create an event
 app.post("/events", async (req, res) => {
     try {
-        const { title, creator, event_date, voting_deadline } = req.body;
-        const newEvent = await pool.query("INSERT INTO events (title, creator, event_date, voting_deadline) VALUES($1, $2, $3, $4) RETURNING *", [title, creator, event_date, voting_deadline]);
+        const { title, creator, event_date, voting_deadline, description } = req.body;
+        const newEvent = await pool.query(
+            "INSERT INTO events (title, creator, event_date, voting_deadline, description) VALUES($1, $2, $3, $4, $5) RETURNING *", 
+            [title, creator, event_date, voting_deadline, description]
+            );
 
         res.status(201).json(newEvent.rows[0]);
     } catch (err) {
@@ -83,12 +86,17 @@ app.get("/events/submissions/:id", async (req, res) => {
 })
 
 // delete a submission
-app.delete("/events/submissions/:id", async (req, res) => {
+app.delete("/:submission_id", async (req, res) => {
     try {
-        const { id } = req.params;
-        const deleteSubmissions = await pool.query("DELETE FROM submissions WHERE id = $1 RETURNING *", [id]);
+        const { submission_id } = req.params;
+        const deleteSubmissions = await pool.query("DELETE FROM submissions WHERE id = $1 RETURNING *", [submission_id]);
 
-        res.status(200).json(deleteSubmissions.rows);
+        const response = {
+            message: "Submission deleted",
+            data: deleteSubmissions.rows
+        };
+
+        res.status(200).json(response);
     } catch (err) {
         console.log(err.message);
     }
