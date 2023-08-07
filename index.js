@@ -52,8 +52,15 @@ app.get("/events/:id", async (req, res) => {
 app.post("/events/:event_id/submissions", async (req, res) => {
     try {
         const { event_id } = req.params;
-        const { submission_name, votes_count } = req.body;
-        const newSubmission = await pool.query("INSERT INTO submissions (submission_name, votes_count, event_id) VALUES($1, $2, $3) RETURNING *", [submission_name, votes_count, event_id]);
+        const { 
+            submission_name, 
+            votes_count, 
+            rating, 
+            location, 
+            yelp_url, 
+            genre 
+        } = req.body;
+        const newSubmission = await pool.query("INSERT INTO submissions (submission_name, votes_count, event_id, rating, location, yelp_url, genre) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *", [submission_name, votes_count, event_id, rating, location, yelp_url, genre]);
 
         res.status(201).json(newSubmission.rows[0]);
     } catch (err) {
@@ -101,6 +108,35 @@ app.delete("/:submission_id", async (req, res) => {
         console.log(err.message);
     }
 })
+
+// Patch request to increment votes_count for a submission
+app.patch("/events/submissions/:submission_id", async (req, res) => {
+    try {
+      const { submission_id } = req.params;
+  
+      // First, retrieve the current votes_count for the submission
+      const getCurrentVotesCount = await pool.query(
+        "SELECT votes_count FROM submissions WHERE id = $1",
+        [submission_id]
+      );
+  
+      const currentVotesCount = getCurrentVotesCount.rows[0].votes_count;
+  
+      // Increment the votes_count by 1
+      const updatedVotesCount = currentVotesCount + 1;
+  
+      // Update the submission in the database with the new votes_count
+      const updatedSubmission = await pool.query(
+        "UPDATE submissions SET votes_count = $1 WHERE id = $2 RETURNING *",
+        [updatedVotesCount, submission_id]
+      );
+  
+      res.status(200).json(updatedSubmission.rows[0]);
+    } catch (err) {
+      console.log(err.message);
+      res.status(500).json({ error: "Error updating votes_count" });
+    }
+  });
 
 // set up port to listen to
 app.listen(process.env.PORT, () => {
