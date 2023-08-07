@@ -13,9 +13,8 @@ CREATE TABLE submissions(
     submission_name VARCHAR(255) NOT NULL,
     votes_count INTEGER,
     event_id INTEGER REFERENCES events(id),
-    rating INTEGER,
+    rating NUMERIC(2,1),
     location VARCHAR(255),
     yelp_url VARCHAR(255),
     genre VARCHAR(255)
 );
-→
