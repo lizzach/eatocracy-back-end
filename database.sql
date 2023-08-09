@@ -16,5 +16,8 @@ CREATE TABLE submissions(
     rating NUMERIC(2,1),
     location VARCHAR(255),
     yelp_url VARCHAR(255),
-    genre VARCHAR(255)
+    genre VARCHAR(255),
+    photo VARCHAR(255),
+    city VARCHAR(50),
+    price VARCHAR(10)
 );

@@ -58,9 +58,12 @@ app.post("/events/:event_id/submissions", async (req, res) => {
             rating, 
             location, 
             yelp_url, 
-            genre 
+            genre,
+            photo,
+            city,
+            price 
         } = req.body;
-        const newSubmission = await pool.query("INSERT INTO submissions (submission_name, votes_count, event_id, rating, location, yelp_url, genre) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *", [submission_name, votes_count, event_id, rating, location, yelp_url, genre]);
+        const newSubmission = await pool.query("INSERT INTO submissions (submission_name, votes_count, event_id, rating, location, yelp_url, genre, photo, city, price) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *", [submission_name, votes_count, event_id, rating, location, yelp_url, genre, photo, city, price]);
 
         res.status(201).json(newSubmission.rows[0]);
     } catch (err) {
