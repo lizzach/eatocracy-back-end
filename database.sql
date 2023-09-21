@@ -5,7 +5,8 @@ CREATE TABLE events(
     title VARCHAR(255) NOT NULL,
     creator VARCHAR(40) NOT NULL,
     event_date DATE NOT NULL,
-    voting_deadline DATE NOT NULL
+    voting_deadline DATE NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id)
 );
 
 CREATE TABLE submissions(
@@ -21,3 +22,16 @@ CREATE TABLE submissions(
     city VARCHAR(50),
     price VARCHAR(10)
 );
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(20) NOT NULL UNIQUE,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    hashed_password VARCHAR(20) NOT NULL,
+    favorites INTEGER REFERENCES submissions(id),
+    event_id INTEGER REFERENCES events(id),
+    friend_id INTEGER REFERENCES users(id)
+);
+
+ALTER TABLE events
+ADD COLUMN user_id INTEGER REFERENCES users(id);
