@@ -1,4 +1,5 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const app = express();
 const cors = require('cors');
 const pool = require('./db');
@@ -9,6 +10,21 @@ app.use(cors())
 app.use(express.json())
 
 // routes
+
+// post user information
+app.post("/register", async (req, res) => {
+    try {
+        const { username, email, password } = req.body;
+        const hash = await bcrypt.hash(password, 12);
+        const newUser = await pool.query(
+            "INSERT INTO users (username, email, hashed_password) VALUES($1, $2, $3) RETURNING *", 
+            [username, email, hash]
+            );
+        res.status(201).json(newUser.rows[0]);
+    } catch (err) {
+        console.log(err.message);
+    }
+})
 
 // create an event
 app.post("/events", async (req, res) => {

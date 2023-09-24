@@ -27,11 +27,8 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL UNIQUE,
-    hashed_password VARCHAR(20) NOT NULL,
+    hashed_password VARCHAR(100) NOT NULL,
     favorites INTEGER REFERENCES submissions(id),
     event_id INTEGER REFERENCES events(id),
     friend_id INTEGER REFERENCES users(id)
 );
-
-ALTER TABLE events
-ADD COLUMN user_id INTEGER REFERENCES users(id);
